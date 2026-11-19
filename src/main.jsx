@@ -12,6 +12,7 @@ const projects = [
     stack: ['Node.js', 'FastAPI', 'LangGraph', 'BullMQ', 'Pinecone'],
     image: '/projects/codereviewai.png',
     gallery: ['/projects/codereviewai-connect.png', '/projects/codereviewai-agents.png'],
+    codeReviewBenchmark: true,
     accent: 'coral',
     live: 'https://code-review-ai-web-sandy.vercel.app/',
     href: 'https://github.com/karteeksai1/CodeReviewAI',
@@ -25,6 +26,7 @@ const projects = [
     stack: ['React', 'Express', 'LangGraph', 'Gemini API', 'PostgreSQL'],
     image: '/projects/hiregraph.png',
     gallery: ['/projects/hiregraph-config.png', '/projects/hiregraph-report.png'],
+    architecture: true,
     accent: 'sun',
     live: 'https://hire-graph.vercel.app/login',
     href: 'https://github.com/karteeksai1/HireGraph',
@@ -147,6 +149,23 @@ function WeatherFeatures() {
   return <section className="feature-suite weather-features"><h2>Key Features</h2><div className="feature-grid"><article><span>01</span><h3>Standardized MCP Architecture</h3><p>Weather tools are decoupled from the LLM and served over Streamable HTTP at <code>/mcp</code> using the official Python MCP SDK 2.x <code>MCPServer</code>.</p></article><article><span>02</span><h3>Dual Data Sources</h3><p><b>Historical:</b> 60-day archived weather metrics stored locally in SQLite for instant statistical aggregation.</p><p><b>Live:</b> Temperature, humidity, wind speed, and precipitation queried on demand via the Open-Meteo Forecast API.</p></article><article><span>03</span><h3>Agent Reasoning with Google ADK</h3><p>A Gemini-powered <code>LlmAgent</code> discovers MCP tools through <code>McpToolset</code>, plans multi-step lookups, and answers with grounded data.</p></article><article><span>04</span><h3>Robust Error Handling</h3><p>Domain-level validation with <code>ToolError</code> prevents server crashes and gives the agent human-readable explanations.</p></article><article><span>05</span><h3>Dedicated Test Suite</h3><p>A standalone <code>test_client.py</code> integration script tests the MCP server without consuming LLM tokens.</p></article></div></section>
 }
 
+function CodeReviewBenchmark() {
+  const rows = [
+    ['Overall Recall', '29.73%', '83.78%'],
+    ['Precision', '75.86%', '79.60%'],
+    ['F1 Score', '42.72%', '62.31%'],
+    ['Bug Recall', '26.67%', '93.33%'],
+    ['Performance Recall', '16.67%', '77.78%'],
+    ['Security Recall', '63.64%', '86.36%'],
+    ['Style Recall', '5.26%', '78.95%'],
+  ]
+  return <section className="feature-suite code-review-benchmark"><h2>Evaluation Benchmark</h2><p>The multi-agent review pipeline is evaluated against a 30-file benchmark dataset covering BUG, SECURITY, PERFORMANCE, and STYLE categories.</p><div className="benchmark-table-wrap"><table className="benchmark-table"><thead><tr><th>Metric</th><th>Baseline (Review 94)</th><th>Latest (Review 100)</th></tr></thead><tbody>{rows.map((row) => <tr key={row[0]}><th>{row[0]}</th><td>{row[1]}</td><td className="latest-value">{row[2]}</td></tr>)}</tbody></table></div><p className="benchmark-note">See <code>evals/README.md</code> for benchmark setup and evaluation workflows.</p></section>
+}
+
+function HireGraphArchitecture() {
+  return <section className="hire-architecture"><h2>🏗 System Architecture</h2><div className="arch-flow"><div className="arch-node primary">User /<br />Candidate</div><div className="arch-arrow">↓</div><div className="arch-node primary">React Frontend</div><div className="arch-split"><div><div className="arch-branch-line" /><div className="arch-node">Express Backend</div></div><div><div className="arch-branch-line" /><div className="arch-node">FastAPI</div><div className="arch-arrow">↓</div><div className="arch-node">LangGraph</div><div className="arch-pair"><div><div className="arch-branch-line" /><div className="arch-node">RAG Layer</div></div><div><div className="arch-branch-line" /><div className="arch-node">OpenAI GPT-4o<br />API</div></div></div></div></div><div className="arch-database"><span>PostgreSQL +</span><strong>pgvector</strong></div></div></section>
+}
+
 function ProjectDetail({ project, onBack }) {
   return (
     <div className="detail-page">
@@ -158,6 +177,8 @@ function ProjectDetail({ project, onBack }) {
         {project.securitySuite && <WardenSecuritySuite />}
         {project.comparison && <LegalAidComparison />}
         {project.weatherFeatures && <WeatherFeatures />}
+        {project.codeReviewBenchmark && <CodeReviewBenchmark />}
+        {project.architecture && <HireGraphArchitecture />}
       </main>
     </div>
   )
