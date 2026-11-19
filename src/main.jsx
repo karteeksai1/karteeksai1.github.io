@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import './styles.css'
 
@@ -11,7 +11,7 @@ const projects = [
     impact: '40% faster reviews · 30% fewer LLM tokens · 95% fewer false positives',
     stack: ['Node.js', 'FastAPI', 'LangGraph', 'BullMQ', 'Pinecone'],
     image: '/projects/codereviewai.png',
-    gallery: ['/projects/codereviewai.png'],
+    gallery: ['/projects/codereviewai-connect.png', '/projects/codereviewai-agents.png'],
     accent: 'coral',
     live: 'https://code-review-ai-web-sandy.vercel.app/',
     href: 'https://github.com/karteeksai1/CodeReviewAI',
@@ -24,7 +24,7 @@ const projects = [
     impact: '85% lower embedding costs · no 429 rate-limit crashes',
     stack: ['React', 'Express', 'LangGraph', 'Gemini API', 'PostgreSQL'],
     image: '/projects/hiregraph.png',
-    gallery: ['/projects/hiregraph.png'],
+    gallery: ['/projects/hiregraph-config.png', '/projects/hiregraph-report.png'],
     accent: 'sun',
     live: 'https://hire-graph.vercel.app/login',
     href: 'https://github.com/karteeksai1/HireGraph',
@@ -38,9 +38,11 @@ const projects = [
     stack: ['TypeScript', 'Redis', 'Neon', 'MCP', 'LangGraph'],
     image: null,
     gallery: [],
+    diagram: true,
+    securitySuite: true,
     accent: 'mint',
     live: null,
-    href: null,
+    href: 'https://github.com/karteeksai1/Warden',
   },
   {
     id: '04',
@@ -51,9 +53,10 @@ const projects = [
     stack: ['Python', 'Multi-Agent AI', 'RAG', 'Contract Analysis'],
     image: '/projects/legalaid-home.png',
     gallery: ['/projects/legalaid-home.png', '/projects/legalaid-login.png'],
+    comparison: true,
     accent: 'mint',
     live: null,
-    href: null,
+    href: 'https://github.com/karteeksai1/LegalAid',
   },
   {
     id: '05',
@@ -62,8 +65,9 @@ const projects = [
     description: 'An open-source decision guard that scores LLM answers against retrieved context and decides whether to deliver, retry retrieval, or refuse.',
     impact: 'Laya grounding guard · Pinecone + SQuAD 2.0 benchmarks',
     stack: ['Python', 'Pinecone', 'SQuAD 2.0', 'Evaluation'],
-    image: '/projects/rag-guard.png',
-    gallery: ['/projects/rag-guard.png'],
+    image: null,
+    gallery: [],
+    benchmark: 'rag',
     accent: 'coral',
     live: null,
     href: 'https://github.com/karteeksai1/RAG-Hallucination-Guard',
@@ -75,8 +79,9 @@ const projects = [
     description: 'An agentic weather intelligence assistant built with Google ADK and Gemini, combining SQLite historical analytics with live Open-Meteo forecasts over Streamable HTTP.',
     impact: 'MCP tools · Gemini reasoning · local historical analysis',
     stack: ['Python', 'Google ADK', 'Gemini', 'MCP', 'SQLite'],
-    image: '/projects/weather-agent.png',
-    gallery: ['/projects/weather-agent.png'],
+    image: null,
+    gallery: [],
+    weatherFeatures: true,
     accent: 'sun',
     live: null,
     href: 'https://github.com/karteeksai1/weather-agent-project',
@@ -88,8 +93,8 @@ const projects = [
     description: 'A benchmarking platform comparing agentic tool use against vector RAG for deep codebase question answering, with trace logging, LLM-as-a-judge evaluation, and visual analytics.',
     impact: 'Tool-use vs RAG · benchmark traces · visual analytics',
     stack: ['Python', 'FastAPI', 'Pinecone', 'Evaluation', 'React'],
-    image: '/projects/grep-trace.png',
-    gallery: ['/projects/grep-trace.png'],
+    image: null,
+    gallery: [],
     accent: 'coral',
     live: null,
     href: 'https://github.com/karteeksai1/GrepTrace',
@@ -102,9 +107,67 @@ function PixelMark() {
   return <span className="pixel-mark" aria-hidden="true"><i /><i /><i /><i /></span>
 }
 
+function WardenDiagram() {
+  return <div className="warden-diagram" aria-label="Warden gateway architecture diagram"><div className="diagram-agent"><strong>AI Agent</strong><span>LangGraph / Claude / GPT</span></div><div className="diagram-arrow">▼ <span>Streamable HTTP / SSE</span></div><div className="diagram-gateway"><strong>Warden Gateway</strong><span>Upstash Redis &amp; Neon Postgres</span></div><div className="diagram-branches">{[['orders', 'HTTP MCP'], ['refunds', 'HTTP MCP'], ['kb', 'HTTP MCP'], ['email', 'HTTP MCP / stdio']].map(([name, protocol]) => <div key={name} className="diagram-branch"><i /><strong>{name}</strong><span>{protocol}</span></div>)}</div></div>
+}
+
+function RagBenchmark() {
+  const rows = [
+    ['No Guard (Baseline)', 'Strict', '20', '4 (20.0%)', '0 (0.0%)', '2.15s'],
+    ['Laya Guard', 'Strict', '20', '1 (5.0%)', '2 (10.0%)', '14.28s'],
+    ['LLM-as-Judge', 'Strict', '20', '2 (10.0%)', '2 (10.0%)', '5.42s'],
+    ['No Guard (Baseline)', 'Plain', '20', '11 (55.0%)', '0 (0.0%)', '2.08s'],
+    ['Laya Guard', 'Plain', '20', '2 (10.0%)', '1 (5.0%)', '14.65s'],
+    ['LLM-as-Judge', 'Plain', '20', '3 (15.0%)', '2 (10.0%)', '5.61s'],
+  ]
+  return <div className="rag-benchmark"><div className="rag-demo"><div className="rag-demo-head"><strong>🛡 RAG Hallucination Guard</strong><span>[ Tab 1: Live Demo ] &nbsp; [ Tab 2: Evaluation Results ]</span></div><p><b>Question:</b> Who conquered England killing King Harold II at the Battle of Hastings?</p><div className="rag-columns"><div><h4>🛡 Guarded Pipeline</h4><strong className="rag-good">✅ Delivered</strong><p>“Duke William II of Normandy.”</p><span>Grounded Score (P_sup): 0.9910<br />Sufficiency Score (P_suf): 0.9912<br />⏱ Latency: 14.69s</span></div><div><h4>⚡ Unguarded Baseline</h4><strong>ℹ️ Baseline Delivered</strong><p>“Duke William II of Normandy.”</p><span>No verification applied.<br />Model output directly delivered.<br />⏱ Latency: 2.11s</span></div></div></div><h3>Tab 2: Evaluation &amp; Calibration</h3><ul className="rag-feature-list"><li><b>Comparative Benchmark Table:</b> No Guard, Laya Guard, and LLM-as-Judge across prompt variants.</li><li><b>Threshold Trade-off Curve:</b> Precision vs. recall across thresholds from 0.30 to 0.95.</li><li><b>Score Distribution Histogram:</b> Separation between answerable and unanswerable questions.</li><li><b>Error Analysis Table:</b> Hallucinations delivered versus false rejections.</li></ul><h3>📊 Measured Benchmark Results</h3><p>Evaluated across the held-out split of SQuAD 2.0 under strict (“refuse if unknown”) and plain (“just answer”) prompt variants.</p><div className="rag-table-wrap"><table className="rag-table"><thead><tr><th>Configuration</th><th>Prompt Variant</th><th>Total Queries</th><th>Wrong Answers Delivered</th><th>Correct Answers Wrongly Refused</th><th>Avg Latency</th></tr></thead><tbody>{rows.map((row) => <tr key={row.join('-')}>{row.map((cell, index) => <td key={`${cell}-${index}`}>{cell}</td>)}</tr>)}</tbody></table></div><p className="rag-finding"><b>Key finding:</b> Under a plain prompt, an unguarded RAG pipeline hallucinates on 55.0% of unanswerable questions, while the Laya Guard reduces that rate to 10.0%.</p></div>
+}
+
+function WardenSecuritySuite() {
+  return <section className="warden-security"><div className="security-heading"><span>SECURITY EVALUATION SUITE</span><strong>evals/</strong></div><p>Warden validates agent-tool boundaries against adversarial inputs while checking that legitimate business workflows remain usable.</p><div className="security-grid"><article><b>attacks.json</b><strong>40+ adversarial vectors</strong><ul><li>Tool description poisoning and invisible Unicode injections</li><li>Indirect prompt injection through tool inputs and return data</li><li>Delimiter injection and LLM persona hijack attempts</li><li>Schema rug-pulls and unauthorized parameter modifications</li></ul></article><article><b>benign.json</b><strong>60+ legitimate payloads</strong><p>Complex business payloads verify that the security scanner maintains low false-positive rates across realistic agent workflows.</p></article><article><b>npm test</b><strong>Continuous verification</strong><p>Runs the evaluation suite against the security scanner on every test cycle, turning attack coverage into a repeatable regression check.</p></article></div></section>
+}
+
+function LegalAidComparison() {
+  const rows = [
+    ['Multi-agent adversarial review', '✅', '❌', '❌', 'Partial'],
+    ['Source-grounded verbatim citations', '✅', 'Partial', 'Partial', '✅'],
+    ['Pre-flight contract classifier', '✅', '❌', '✅', 'Partial'],
+    ['Dual-mode presentation (Simple / Standard)', '✅', '❌', '❌', '❌'],
+    ['Cross-agent consensus arbitration', '✅', '❌', '❌', 'Partial'],
+    ['Conversational synonym RAG Q&A', '✅', '❌', '❌', 'Partial'],
+    ['Anti-hallucination & anti-injection guardrails', '✅', 'Partial', '❌', 'Partial'],
+    ['Deterministic 0–100 risk scoring', '✅', '❌', '✅ (rule-only)', 'Partial'],
+    ['Per-user document persistence & lifecycle', '✅', '❌', '✅', '✅'],
+    ['Open microservice architecture (self-hostable)', '✅', '❌', '❌', '❌'],
+  ]
+  return <section className="legalaid-comparison"><h2>What Makes This Different From Existing Tools</h2><div className="comparison-table-wrap"><table className="comparison-table"><thead><tr><th>Capability</th><th>LegalAid</th><th>ChatGPT / Claude</th><th>Ironclad / DocuSign</th><th>Robin AI / Spellbook</th></tr></thead><tbody>{rows.map((row) => <tr key={row[0]}>{row.map((cell, index) => <td key={`${row[0]}-${index}`} className={cell === '✅' ? 'yes' : cell === '❌' ? 'no' : ''}>{cell}</td>)}</tr>)}</tbody></table></div></section>
+}
+
+function WeatherFeatures() {
+  return <section className="feature-suite weather-features"><h2>Key Features</h2><div className="feature-grid"><article><span>01</span><h3>Standardized MCP Architecture</h3><p>Weather tools are decoupled from the LLM and served over Streamable HTTP at <code>/mcp</code> using the official Python MCP SDK 2.x <code>MCPServer</code>.</p></article><article><span>02</span><h3>Dual Data Sources</h3><p><b>Historical:</b> 60-day archived weather metrics stored locally in SQLite for instant statistical aggregation.</p><p><b>Live:</b> Temperature, humidity, wind speed, and precipitation queried on demand via the Open-Meteo Forecast API.</p></article><article><span>03</span><h3>Agent Reasoning with Google ADK</h3><p>A Gemini-powered <code>LlmAgent</code> discovers MCP tools through <code>McpToolset</code>, plans multi-step lookups, and answers with grounded data.</p></article><article><span>04</span><h3>Robust Error Handling</h3><p>Domain-level validation with <code>ToolError</code> prevents server crashes and gives the agent human-readable explanations.</p></article><article><span>05</span><h3>Dedicated Test Suite</h3><p>A standalone <code>test_client.py</code> integration script tests the MCP server without consuming LLM tokens.</p></article></div></section>
+}
+
+function ProjectDetail({ project, onBack }) {
+  return (
+    <div className="detail-page">
+      <header className="topbar"><button className="back-button" onClick={onBack}>← BACK TO WORK</button><a className="brand" href="/?#top" aria-label="Karteek Portfolio home"><PixelMark /> KARTEEK PORTFOLIO</a><span className="detail-status">PROJECT // {project.id}</span></header>
+      <main className="detail-main">
+        <div className="detail-hero"><div><span className="eyebrow"><span className="red-block" /> {project.type}</span><h1>{project.title}</h1><p>{project.description}</p></div><div className="detail-links">{project.live && <a href={project.live} target="_blank" rel="noreferrer">OPEN LIVE ↗</a>}{project.href && <a href={project.href} target="_blank" rel="noreferrer">VIEW REPO ↗</a>}</div></div>
+        <div className="detail-meta"><div><span>IMPACT</span><strong>{project.impact}</strong></div><div><span>STACK</span><div className="tag-row">{project.stack.map((tag) => <span key={tag}>{tag}</span>)}</div></div></div>
+        {project.diagram ? <WardenDiagram /> : project.benchmark === 'rag' ? <RagBenchmark /> : project.gallery?.length > 0 ? <div className="detail-gallery">{project.gallery.map((shot, index) => <figure key={shot}><img src={shot} alt={`${project.title} screen ${index + 1}`} /><figcaption>SCREEN {String(index + 1).padStart(2, '0')} // {project.type}</figcaption></figure>)}</div> : null}
+        {project.securitySuite && <WardenSecuritySuite />}
+        {project.comparison && <LegalAidComparison />}
+        {project.weatherFeatures && <WeatherFeatures />}
+      </main>
+    </div>
+  )
+}
+
 function App() {
-  const [activeProject, setActiveProject] = useState(null)
+  const [selectedProjectId, setSelectedProjectId] = useState(() => new URLSearchParams(window.location.search).get('project'))
   const [clock, setClock] = useState('00:00:00')
+  const previousScrollPosition = useRef(0)
+  const restoreScrollOnReturn = useRef(false)
 
   useEffect(() => {
     const tick = () => setClock(new Date().toLocaleTimeString('en-GB', { hour12: false }))
@@ -113,7 +176,31 @@ function App() {
     return () => clearInterval(timer)
   }, [])
 
+  useEffect(() => {
+    const handlePopState = () => {
+      const nextProjectId = new URLSearchParams(window.location.search).get('project')
+      if (!nextProjectId) restoreScrollOnReturn.current = true
+      setSelectedProjectId(nextProjectId)
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
+
+  useEffect(() => {
+    if (!selectedProjectId && restoreScrollOnReturn.current) {
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: previousScrollPosition.current, behavior: 'smooth' })
+        restoreScrollOnReturn.current = false
+      })
+    }
+  }, [selectedProjectId])
+
   const scrollTo = (id) => document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' })
+  const openProject = (id) => { previousScrollPosition.current = window.scrollY; window.history.pushState({}, '', `?project=${id}`); setSelectedProjectId(id); window.scrollTo({ top: 0, behavior: 'smooth' }) }
+  const closeProject = () => { window.history.pushState({}, '', window.location.pathname); restoreScrollOnReturn.current = true; setSelectedProjectId(null) }
+
+  const selectedProject = projects.find((project) => project.id === selectedProjectId)
+  if (selectedProject) return <ProjectDetail project={selectedProject} onBack={closeProject} />
 
   return (
     <div className="site-shell">
@@ -159,7 +246,7 @@ function App() {
           <div className="section-heading"><div><span className="section-index">01</span><h2>SELECTED BUILDS</h2></div><span className="heading-note">SEVEN SYSTEMS // ONE CURIOSITY</span></div>
           <div className="project-list">
             {projects.map((project) => (
-              <article className={`project-card ${project.image ? 'has-image' : 'no-image'} ${activeProject === project.id ? 'is-active' : ''}`} key={project.id} onClick={() => setActiveProject(activeProject === project.id ? null : project.id)}>
+              <article className={`project-card ${project.image ? 'has-image' : 'no-image'}`} key={project.id} onClick={() => openProject(project.id)} role="link" tabIndex="0" onKeyDown={(event) => event.key === 'Enter' && openProject(project.id)}>
                 <div className="project-number">{project.id}</div>
                 {project.image && <div className={`project-visual ${project.accent}`}><img src={project.image} alt={`${project.title} interface`} /><span className="visual-label">{project.type}</span></div>}
                 <div className="project-info">
@@ -167,9 +254,8 @@ function App() {
                   <p>{project.description}</p>
                   <div className="project-impact">↳ {project.impact}</div>
                   <div className="tag-row">{project.stack.map((tag) => <span key={tag}>{tag}</span>)}</div>
-                  {activeProject === project.id && <div className="project-detail"><div><span className="detail-kicker">CASE FILE // {project.id}</span><p className="detail-copy">{project.description} This build is part of my ongoing exploration of reliable, observable AI systems that keep their reasoning grounded in real inputs.</p></div>{project.gallery?.length > 0 && <div className="project-gallery">{project.gallery.map((shot, index) => <img key={shot} src={shot} alt={`${project.title} screen ${index + 1}`} />)}</div>}</div>}
                 </div>
-                <div className="project-toggle">{activeProject === project.id ? '−' : '+'}</div>
+                <div className="project-toggle">↗</div>
               </article>
             ))}
           </div>
